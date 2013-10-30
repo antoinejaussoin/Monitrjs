@@ -1,0 +1,19 @@
+{
+  "name": "Monitrjs",
+  "version": "0.0.1",
+  "authors": [
+    "Antoine Jaussoin <antoine.jaussoin@gmail.com>"
+  ],
+  "description": "An interface for Monitrjs",
+  "main": "index.html",
+  "license": "MIT",
+  "homepage": "www.jaussoin.com",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

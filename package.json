@@ -1,0 +1,15 @@
+{
+  "name": "Monitrjs",
+  "version": "0.0.1",
+  "description": "A way to upload files by FTP automagicaly",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Antoine Jaussoin",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "watchr": "~2.4.4",
+    "ssh2": "~0.2.12"
+  }
+}
