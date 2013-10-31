@@ -9,8 +9,8 @@ var directoryToWatch = config.directories.watchRoot;
 queue.start();
 
 watcher.watchDirectory(directoryToWatch, function(createdFile){
-    queue.push("Sending "+createdFile, 2, function(){
-        sender.send(createdFile, directoryToWatch);
+    queue.push("Sending "+createdFile, 120, function(){
+        sender.send(createdFile, config);
     });
 });
 
