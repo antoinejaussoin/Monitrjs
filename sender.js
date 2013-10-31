@@ -4,7 +4,7 @@ var path = require("path");
 var config = require("./config");
 var queue = require("./queue");
 var log = require("./log");
-var growl = require('growl');
+var growlr = require('./growlr');
 
 function resolveRemotePath(file, config){
     return path.normalize(file.replace(config.directories.watchRoot, config.directories.remoteRoot));
@@ -89,7 +89,7 @@ function doSend(file, config, tryCount){
 
                 writeStream.on('close', function(){
                     log.info("File transferred");
-                    growl('File transferred: '+remoteFileChanged);
+                    growlr('File transferred', remoteFileChanged);
                     sftp.end();
                 });
 

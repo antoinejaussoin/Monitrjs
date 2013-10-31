@@ -14,5 +14,9 @@
     "moment": "~2.4.0",
     "winston": "~0.7.2",
     "growl": "~1.7.0"
-  }
+  },
+    "devDependencies": {
+        "mocha": "*",
+        "should": ">= 0.0.1"
+    }
 }

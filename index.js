@@ -3,7 +3,7 @@ var sender = require("./sender");
 var config = require("./config");
 var queue = require("./queue");
 var log = require("./log");
-var growl = require("growl");
+var growlr = require("./growlr");
 
 var directoryToWatch = config.directories.watchRoot;
 
@@ -17,6 +17,6 @@ watcher.watchDirectory(directoryToWatch, function(createdFile){
 
 log.info("Watching started");
 
-growl('MonitrJS Started!');
+growlr('MonitrJS Started!', 'It should start monitoring now...');
 
 //sender.send(config.directories.testFile, config.directories.watchRoot);
