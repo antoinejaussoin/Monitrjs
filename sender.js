@@ -21,8 +21,8 @@ function ensureDirectory(directory, sftp, callback) {
 
     if (parent.length > 3){
         ensureDirectory(parent, sftp, function(){
-            log.info("Making directory "+directory);
-           makeDirectory(directory, sftp, callback);
+
+            makeDirectory(directory, sftp, callback);
         });
     }
     else
@@ -32,7 +32,9 @@ function ensureDirectory(directory, sftp, callback) {
 }
 
 function makeDirectory(directory, sftp, callback){
-    sftp.mkdir(directory, function(err){
+    var remoteDirectory = directory.replace(/\\/g, config.ftp.remoteSeparator);
+    log.info("Making remote directory "+remoteDirectory);
+    sftp.mkdir(remoteDirectory, function(err){
         if (err){ // Probably because the directory already exists
             //log.info("Error: "+err);
             callback(err);
@@ -84,15 +86,17 @@ function doSend(file, config, tryCount){
             ensureDirectory(remoteDirectory, sftp, function(){
                 // upload file
                 var readStream = fs.createReadStream(file);
-                var writeStream = sftp.createWriteStream(remoteFile);
+                var remoteFileChanged = remoteFile.replace(/\\/g, config.ftp.remoteSeparator);
+                log.info("Remote file to be sent: "+remoteFileChanged);
+                var writeStream = sftp.createWriteStream(remoteFileChanged);
 
                 writeStream.on('close', function(){
                     log.info("File transferred");
                     sftp.end();
                 });
 
-                writeStream.on('error', function(){
-                    log.error("Re-queuing");
+                writeStream.on('error', function(err){
+                    log.error("Re-queuing: "+err);
                     requeuing(file, config, tryCount);
                     sftp.end();
                 });
@@ -127,7 +131,7 @@ function doSend(file, config, tryCount){
 }
 
 function send(file, config) {
-	doSend(file, config, 0);
+    doSend(file, config, 0);
 }
 
 exports.send = send;
