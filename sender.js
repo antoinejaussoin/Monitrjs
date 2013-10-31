@@ -4,9 +4,7 @@ var path = require("path");
 var config = require("./config");
 var queue = require("./queue");
 var log = require("./log");
-
-var timeouts = [5, 30, 60, 60, 600, 600, 600, 3600, 3600];
-//var timeouts = [1, 2, 1, 2, 1, 2, 1, 2, 1];
+var growl = require('growl');
 
 function resolveRemotePath(file, config){
     return path.normalize(file.replace(config.directories.watchRoot, config.directories.remoteRoot));
@@ -21,7 +19,6 @@ function ensureDirectory(directory, sftp, callback) {
 
     if (parent.length > 3){
         ensureDirectory(parent, sftp, function(){
-
             makeDirectory(directory, sftp, callback);
         });
     }
@@ -47,8 +44,8 @@ function makeDirectory(directory, sftp, callback){
 
 
 function requeuing(file, config, tryCount){
-    if (timeouts.length > tryCount){
-        var waitTime = timeouts[tryCount];
+    if (config.ftp.timeouts.length > tryCount){
+        var waitTime = config.ftp.timeouts[tryCount];
 
         queue.push('Requeuing file transfer #'+tryCount+", for "+waitTime+" seconds: "+file, waitTime, function(){
             doSend(file, config, tryCount+1);
@@ -92,6 +89,7 @@ function doSend(file, config, tryCount){
 
                 writeStream.on('close', function(){
                     log.info("File transferred");
+                    growl('File transferred: '+remoteFileChanged);
                     sftp.end();
                 });
 

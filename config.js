@@ -6,7 +6,9 @@ var ftp = {
     port: 55551,
     username: "Download",
     password: "bellepou",
-    remoteSeparator: '/'
+    remoteSeparator: '/',
+    sendDelay: 120,
+    timeouts: [5, 30, 60, 60, 600, 600, 600, 3600, 3600]
 };
 
 var directories = {
