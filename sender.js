@@ -2,6 +2,10 @@ var ssh2 = require("ssh2");
 var fs = require("fs");
 var path = require("path");
 var config = require("./config");
+var queue = require("./queue");
+
+var timeouts = [5, 30, 60, 60, 600, 600, 600, 3600, 3600];
+//var timeouts = [1, 2, 1, 2, 1, 2, 1, 2, 1];
 
 function resolveRemotePath(file, rootPath){
     return path.normalize(file.replace(rootPath, "/Public/"));
@@ -26,6 +30,21 @@ function ensureDirectory(directory, sftp, callback) {
     }
 }
 
+function requeuing(file, rootPath, tryCount){
+    if (timeouts.length > tryCount){
+        var waitTime = timeouts[tryCount];
+
+        queue.push('Requeuing file transfer #'+tryCount+", for "+waitTime+" seconds: "+file, waitTime, function(){
+            doSend(file, rootPath, tryCount+1);
+        });
+    }
+    else
+    {
+        console.error("The file "+file+" couldn't be sent. Aborting for good.");
+    }
+
+}
+
 function makeDirectory(directory, sftp, callback){
     sftp.mkdir(directory, function(err){
         if (err){
@@ -38,24 +57,26 @@ function makeDirectory(directory, sftp, callback){
     });
 }
 
-function send(file, rootPath) {
-	console.log("Sending "+file);
+function doSend(file, rootPath, tryCount){
+    console.log("Sending "+file);
     var remoteFile = resolveRemotePath(file, rootPath);
     console.log("To "+remoteFile);
-	var conn = new ssh2();
-	conn.on('connect', function(){
-		console.log("connected to SSH");
-	});
 
-	conn.on('ready', function(){
-		console.log("ready");
-		conn.sftp(function(err, sftp){
-			if (err){
-				console.log("Error, problem starting SFTP: %s", err);
-				process.exit(2);
-			}
+    var conn = new ssh2();
 
-			console.log("SFTP started");
+    conn.on('connect', function(){
+        console.log("connected to SSH");
+    });
+
+    conn.on('ready', function(){
+        console.log("ready");
+        conn.sftp(function(err, sftp){
+            if (err){
+                console.log("Error, problem starting SFTP: %s", err);
+                process.exit(2);
+            }
+
+            console.log("SFTP started");
             var remoteDirectory = path.dirname(remoteFile);
 
             ensureDirectory(remoteDirectory, sftp, function(){
@@ -68,31 +89,43 @@ function send(file, rootPath) {
                     sftp.end();
                 });
 
+                writeStream.on('error', function(){
+                    console.error("Re-queuing");
+                    requeuing(file, rootPath, tryCount);
+                    sftp.end();
+                });
+
                 readStream.pipe(writeStream);
             });
 
 
-		});
+        });
 
-	});
+    });
 
-	conn.on('error', function(err) {
-		console.log("Connection error: %s", err);
-	});
+    conn.on('error', function(err) {
+        console.error("Connection error: %s", err);
+        console.error("Re-queuing");
+        requeuing(file, rootPath, tryCount);
+    });
 
-	conn.on('end', function() {
-		console.log("Connection ended");
-	});
+    conn.on('end', function() {
+        console.log("Connection ended");
+    });
 
-	conn.connect({
-		host: config.ftp.host,
-		port: config.ftp.port,
-		username: config.ftp.username,
-		password: config.ftp.password,
+    conn.connect({
+        host: config.ftp.host,
+        port: config.ftp.port,
+        username: config.ftp.username,
+        password: config.ftp.password,
         hostVerifier: function(a, b){
             return true;
         }
-	});
+    });
+}
+
+function send(file, rootPath) {
+	doSend(file, rootPath, 0);
 }
 
 exports.send = send;

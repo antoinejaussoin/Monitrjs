@@ -21,7 +21,6 @@ function watchDirectory(directoryToWatch, onFileCreated){
         }
 
     });
-
 }
 
 exports.watchDirectory = watchDirectory;
