@@ -4,7 +4,7 @@ var config = require("./config");
 
 var directoryToWatch = config.directories.watchRoot;
 
-watcher.run(directoryToWatch, function(createdFile){
+watcher.watchDirectory(directoryToWatch, function(createdFile){
     sender.send(createdFile, directoryToWatch);
 });
 
