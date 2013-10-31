@@ -10,6 +10,7 @@ var ftp = {
 
 var directories = {
     watchRoot: "c:\\watch",
+    remoteRoot: "/Public/",
     testFile: "c:\\watch\\Movies\\TheMovie\\sub1\\sub2\\blah.txt" // Temporary
 };
 

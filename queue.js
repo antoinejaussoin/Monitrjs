@@ -2,6 +2,7 @@
  * Created by jaussan on 31/10/13.
  */
 var moment = require("moment");
+var log = require("./log");
 var queue = [];
 var QUEUE_DELAY = 1000;
 
@@ -16,7 +17,7 @@ function start(){
                 queue.push(job);
             }
             else {
-                console.log("Running a job "+job.name);
+                log.info("Running a job "+job.name);
                 job.run();
             }
         }

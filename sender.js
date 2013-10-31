@@ -3,6 +3,7 @@ var fs = require("fs");
 var path = require("path");
 var config = require("./config");
 var queue = require("./queue");
+var log = require("./log");
 
 var timeouts = [5, 30, 60, 60, 600, 600, 600, 3600, 3600];
 //var timeouts = [1, 2, 1, 2, 1, 2, 1, 2, 1];
@@ -12,15 +13,15 @@ function resolveRemotePath(file, rootPath){
 }
 
 function ensureDirectory(directory, sftp, callback) {
-    console.log("About to create directory "+directory);
+    log.info("About to create directory "+directory);
 
     var parent =  path.dirname(directory);
 
-    console.log("Going to parent "+parent);
+    log.info("Going to parent "+parent);
 
     if (parent.length > 3){
         ensureDirectory(parent, sftp, function(){
-            console.log("Making directory "+directory);
+            log.info("Making directory "+directory);
            makeDirectory(directory, sftp, callback);
         });
     }
@@ -29,6 +30,19 @@ function ensureDirectory(directory, sftp, callback) {
         callback();
     }
 }
+
+function makeDirectory(directory, sftp, callback){
+    sftp.mkdir(directory, function(err){
+        if (err){ // Probably because the directory already exists
+            //log.info("Error: "+err);
+            callback(err);
+        }else{
+            log.warn("Created a directory: "+directory);
+            callback(undefined);
+        }
+    });
+}
+
 
 function requeuing(file, rootPath, tryCount){
     if (timeouts.length > tryCount){
@@ -40,43 +54,31 @@ function requeuing(file, rootPath, tryCount){
     }
     else
     {
-        console.error("The file "+file+" couldn't be sent. Aborting for good.");
+        log.error("The file "+file+" couldn't be sent. Aborting for good.");
     }
 
 }
 
-function makeDirectory(directory, sftp, callback){
-    sftp.mkdir(directory, function(err){
-        if (err){
-            console.log("Error: "+err);
-            callback(err);
-        }else{
-            console.log("Created a directory: "+directory);
-            callback(undefined);
-        }
-    });
-}
-
 function doSend(file, rootPath, tryCount){
-    console.log("Sending "+file);
+    log.info("Sending "+file);
     var remoteFile = resolveRemotePath(file, rootPath);
-    console.log("To "+remoteFile);
+    log.info("To "+remoteFile);
 
     var conn = new ssh2();
 
     conn.on('connect', function(){
-        console.log("connected to SSH");
+        log.info("connected to SSH");
     });
 
     conn.on('ready', function(){
-        console.log("ready");
+        log.info("ready");
         conn.sftp(function(err, sftp){
             if (err){
-                console.log("Error, problem starting SFTP: %s", err);
+                log.error("Error, problem starting SFTP: %s", err);
                 process.exit(2);
             }
 
-            console.log("SFTP started");
+            log.info("SFTP started");
             var remoteDirectory = path.dirname(remoteFile);
 
             ensureDirectory(remoteDirectory, sftp, function(){
@@ -85,12 +87,12 @@ function doSend(file, rootPath, tryCount){
                 var writeStream = sftp.createWriteStream(remoteFile);
 
                 writeStream.on('close', function(){
-                    console.log("File transferred");
+                    log.info("File transferred");
                     sftp.end();
                 });
 
                 writeStream.on('error', function(){
-                    console.error("Re-queuing");
+                    log.error("Re-queuing");
                     requeuing(file, rootPath, tryCount);
                     sftp.end();
                 });
@@ -104,13 +106,13 @@ function doSend(file, rootPath, tryCount){
     });
 
     conn.on('error', function(err) {
-        console.error("Connection error: %s", err);
-        console.error("Re-queuing");
+        log.error("Connection error: %s", err);
+        log.error("Re-queuing");
         requeuing(file, rootPath, tryCount);
     });
 
     conn.on('end', function() {
-        console.log("Connection ended");
+        log.info("Connection ended");
     });
 
     conn.connect({

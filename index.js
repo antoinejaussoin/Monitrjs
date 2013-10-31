@@ -2,6 +2,7 @@ var watcher = require('./watcher');
 var sender = require("./sender");
 var config = require("./config");
 var queue = require("./queue");
+var log = require("./log");
 
 var directoryToWatch = config.directories.watchRoot;
 
@@ -13,6 +14,6 @@ watcher.watchDirectory(directoryToWatch, function(createdFile){
     });
 });
 
-console.log("Watching started");
+log.info("Watching started");
 
 //sender.send(config.directories.testFile, config.directories.watchRoot);
