@@ -1,20 +1,13 @@
-var watchr = require('watchr');
+var watcher = require('./watcher');
 var sender = require("./sender");
-var rootFolder = "/Users/Antoine/watch/";
+var config = require("./config");
 
-watchr.watch({
-	path: rootFolder,
-	listeners: {
-		change: function(changeType, filePath, fileCurrentStat, filePreviousStat){
-			console.log("A change event occured: ", arguments);
-			if (changeType === 'create') {
-				sender.send(filePath, rootFolder);
-			}
-		}
-	}
+var directoryToWatch = config.directories.watchRoot;
 
+watcher.run(directoryToWatch, function(createdFile){
+    sender.send(createdFile, directoryToWatch);
 });
 
 console.log("Watching started");
 
-sender.send("/Users/Antoine/watch/Movies/movie.mkv", rootFolder);
+//sender.send(config.directories.testFile, config.directories.watchRoot);

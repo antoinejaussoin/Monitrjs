@@ -1,22 +1,40 @@
 var ssh2 = require("ssh2");
 var fs = require("fs");
 var path = require("path");
+var config = require("./config");
 
 function resolveRemotePath(file, rootPath){
-    return file.replace(rootPath, "/Public/");
+    return path.normalize(file.replace(rootPath, "/Public/"));
 }
 
-function ensureDirectory(file, sftp, callback) {
-    var directory = path.dirname(file);
+function ensureDirectory(directory, sftp, callback) {
     console.log("About to create directory "+directory);
 
-    sftp.mkdir(directory, function(err, res){
-       if (err){
-           console.log("Error: "+err);
-       }else{
-           console.log("Created a directory: "+res);
-       }
+    var parent =  path.dirname(directory);
+
+    console.log("Going to parent "+parent);
+
+    if (parent.length > 3){
+        ensureDirectory(parent, sftp, function(){
+            console.log("Making directory "+directory);
+           makeDirectory(directory, sftp, callback);
+        });
+    }
+    else
+    {
         callback();
+    }
+}
+
+function makeDirectory(directory, sftp, callback){
+    sftp.mkdir(directory, function(err){
+        if (err){
+            console.log("Error: "+err);
+            callback(err);
+        }else{
+            console.log("Created a directory: "+directory);
+            callback(undefined);
+        }
     });
 }
 
@@ -38,8 +56,9 @@ function send(file, rootPath) {
 			}
 
 			console.log("SFTP started");
+            var remoteDirectory = path.dirname(remoteFile);
 
-            ensureDirectory(remoteFile, sftp, function(){
+            ensureDirectory(remoteDirectory, sftp, function(){
                 // upload file
                 var readStream = fs.createReadStream(file);
                 var writeStream = sftp.createWriteStream(remoteFile);
@@ -66,10 +85,10 @@ function send(file, rootPath) {
 	});
 
 	conn.connect({
-		host: "192.168.0.66",
-		port: 55551,
-		username: "Download",
-		password: "bellepou",
+		host: config.ftp.host,
+		port: config.ftp.port,
+		username: config.ftp.username,
+		password: config.ftp.password,
         hostVerifier: function(a, b){
             return true;
         }
