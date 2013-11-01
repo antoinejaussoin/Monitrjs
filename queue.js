@@ -5,15 +5,25 @@ var moment = require("moment");
 var log = require("./log");
 var queue = [];
 var QUEUE_DELAY = 1000;
+var status = {
+    isStarted: false
+};
 
 function start(){
 
+    status.isStarted = true;
+    //log.info("Queue Started");
     setTimeout(function loop(){
+
+        //log.info("Loop at "+new Date());
+        if (!status.isStarted)
+            return;
+
         if (queue.length > 0){
             var job = queue[0];
             queue.splice(0, 1);
 
-            if (job.start > new Date()){
+            if (job.start >= new Date()){
                 queue.push(job);
             }
             else {
@@ -25,6 +35,10 @@ function start(){
     }, QUEUE_DELAY);
 }
 
+function stop(){
+    status.isStarted = false;
+}
+
 function push(name, delayInSeconds, taskCallback){
     queue.push({
         name: name,
@@ -33,5 +47,9 @@ function push(name, delayInSeconds, taskCallback){
     })
 }
 
+
 exports.start = start;
 exports.push = push;
+exports.stop = stop;
+exports.status = status;
+exports.queue = queue;
