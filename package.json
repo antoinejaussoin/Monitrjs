@@ -4,8 +4,8 @@
   "description": "A way to upload files by FTP automagicaly",
   "main": "index.js",
   "scripts": {
-      "start": "node_modules/.bin/supervisor app",
-      "test": "node_modules/.bin/mocha -w"
+    "start": "node_modules/.bin/supervisor app",
+    "test": "node_modules/.bin/mocha -w"
   },
   "author": "Antoine Jaussoin",
   "license": "BSD-2-Clause",
@@ -14,12 +14,13 @@
     "ssh2": "~0.2.12",
     "moment": "~2.4.0",
     "winston": "~0.7.2",
-    "growl": "~1.7.0"
+    "growl": "~1.7.0",
+    "opensubtitles-client": "~1.0.6"
   },
-    "devDependencies": {
-        "mocha": "*",
-        "should": ">= 0.0.1",
-        "sinon": "*",
-        "rewire": "*"
-    }
+  "devDependencies": {
+    "mocha": "*",
+    "should": ">= 0.0.1",
+    "sinon": "*",
+    "rewire": "*"
+  }
 }
