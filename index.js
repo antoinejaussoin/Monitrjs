@@ -18,8 +18,7 @@ function fileSent(file, remoteFile){
     var movieExtensions = config.subtitles.movieExtensions;
     if (movieExtensions.indexOf(extension) > -1) {
         var fileName = path.basename(remoteFile, extension);
-        growlr('File transferred', fileName);
-        tweet.send("New movie! "+fileName+" (in "+remoteFile+")");
+        growlr('File transferred', remoteFile);
     }
 }
 
@@ -30,8 +29,11 @@ watcher.watchDirectory(directoryToWatch, function(createdFile){
     });
 
     var fileExtension = path.extname(createdFile);
+    var fileName = path.basename(createdFile, fileExtension);
     var movieExtensions = config.subtitles.movieExtensions;
     if (movieExtensions.indexOf(fileExtension) > -1) {
+        tweet.send("New movie! "+fileName+" (in "+createdFile+")");
+
         queue.push("Finding subs for "+createdFile, config.subtitles.initialDelay, function(){
             config.subtitles.languages.forEach(function(language){
                 subtitler.download(createdFile, language);
