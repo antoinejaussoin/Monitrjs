@@ -15,7 +15,8 @@
     "moment": "~2.4.0",
     "winston": "~0.7.2",
     "growl": "~1.7.0",
-    "opensubtitles-client": "~1.0.6"
+    "opensubtitles-client": "~1.0.6",
+    "twitter": "~0.2.4"
   },
   "devDependencies": {
     "mocha": "*",

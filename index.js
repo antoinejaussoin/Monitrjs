@@ -6,14 +6,27 @@ var log = require("./log");
 var growlr = require("./growlr");
 var subtitler = require("./subtitler");
 var path = require("path");
+var tweet = require("./tweet");
 
 var directoryToWatch = config.directories.watchRoot;
 
 queue.start();
 
+
+function fileSent(file, remoteFile){
+    var extension = path.extname(file);
+    var movieExtensions = config.subtitles.movieExtensions;
+    if (movieExtensions.indexOf(extension) > -1) {
+        var fileName = path.basename(remoteFile, extension);
+        growlr('File transferred', fileName);
+        tweet.send("New movie! "+fileName+" (in "+remoteFile+")");
+    }
+}
+
+
 watcher.watchDirectory(directoryToWatch, function(createdFile){
     queue.push("Sending "+createdFile, config.ftp.sendDelay, function(){
-        sender.send(createdFile, config);
+        sender.send(createdFile, config, fileSent);
     });
 
     var fileExtension = path.extname(createdFile);

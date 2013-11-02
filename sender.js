@@ -4,7 +4,6 @@ var path = require("path");
 var config = require("./config");
 var queue = require("./queue");
 var log = require("./log");
-var growlr = require('./growlr');
 
 function resolveRemotePath(file, config){
     return path.normalize(file.replace(config.directories.watchRoot, config.directories.remoteRoot));
@@ -43,12 +42,12 @@ function makeDirectory(directory, sftp, callback){
 }
 
 
-function requeuing(file, config, tryCount){
+function requeuing(file, config, tryCount, callback){
     if (config.ftp.timeouts.length > tryCount){
         var waitTime = config.ftp.timeouts[tryCount];
 
         queue.push('Requeuing file transfer #'+tryCount+", for "+waitTime+" seconds: "+file, waitTime, function(){
-            doSend(file, config, tryCount+1);
+            doSend(file, config, tryCount+1, callback);
         });
     }
     else
@@ -58,7 +57,7 @@ function requeuing(file, config, tryCount){
 
 }
 
-function doSend(file, config, tryCount){
+function doSend(file, config, tryCount, callback){
     log.info("Sending "+file);
     var remoteFile = resolveRemotePath(file, config);
     log.info("To "+remoteFile);
@@ -89,13 +88,13 @@ function doSend(file, config, tryCount){
 
                 writeStream.on('close', function(){
                     log.info("File transferred");
-                    growlr('File transferred', remoteFileChanged);
                     sftp.end();
+                    callback(file, remoteFileChanged);
                 });
 
                 writeStream.on('error', function(err){
                     log.error("Re-queuing: "+err);
-                    requeuing(file, config, tryCount);
+                    requeuing(file, config, tryCount, callback);
                     sftp.end();
                 });
 
@@ -128,8 +127,8 @@ function doSend(file, config, tryCount){
     });
 }
 
-function send(file, config) {
-    doSend(file, config, 0);
+function send(file, config, callback) {
+    doSend(file, config, 0, callback);
 }
 
 exports.send = send;
