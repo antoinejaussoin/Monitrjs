@@ -32,7 +32,7 @@ watcher.watchDirectory(directoryToWatch, function(createdFile){
     var fileName = path.basename(createdFile, fileExtension);
     var movieExtensions = config.subtitles.movieExtensions;
     if (movieExtensions.indexOf(fileExtension) > -1) {
-        tweet.send("New movie! "+fileName+" (in "+createdFile+")");
+        tweet.send("New movie! "+fileName);
 
         queue.push("Finding subs for "+createdFile, config.subtitles.initialDelay, function(){
             config.subtitles.languages.forEach(function(language){
