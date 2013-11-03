@@ -24,6 +24,8 @@ function fileSent(file, remoteFile){
 
 
 watcher.watchDirectory(directoryToWatch, function(createdFile){
+    //log.info("New file detected: "+createdFile);
+
     queue.push("Sending "+createdFile, config.ftp.sendDelay, function(){
         sender.send(createdFile, config, fileSent);
     });

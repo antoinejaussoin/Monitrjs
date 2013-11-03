@@ -1,6 +1,8 @@
 var watchr = require('watchr');
 var fs = require("fs");
 var log = require("./log");
+var path = require("path");
+var walk = require("walk");
 
 function watchDirectory(directoryToWatch, onFileCreated){
     watchr.watch({
@@ -14,7 +16,14 @@ function watchDirectory(directoryToWatch, onFileCreated){
                             log.info("This is a file");
                             onFileCreated(filePath);
                         } else {
-                            log.info("This is a directory, we ignore it");
+                            log.info("This is a directory, we try to find individual files");
+
+                            var walker  = walk.walk(filePath, { followLinks: false });
+
+                            walker.on('file', function(root, stat, next) {
+                                onFileCreated(root+path.sep+stat.name);
+                                next();
+                            });
                         }
                     });
                 }
