@@ -1,16 +1,8 @@
-/**
- * Created by jaussan on 31/10/13.
- */
-
 var nconf = require("nconf");
-
-nconf.overrides({
-    'always': 'be this value'
-});
 
 nconf.env().argv();
 
-nconf.file('config.json');
+nconf.file(__dirname+'/config.json');
 
 nconf.defaults({
     "ftp": {

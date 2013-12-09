@@ -8,7 +8,13 @@ var subtitler = require("./subtitler");
 var path = require("path");
 var tweet = require("./tweet");
 
-console.log(config.ftp.host);
+process.on('uncaughtException', function(err) {
+  console.log('Caught exception: ' + err);
+  log.info("Caught exception: "+err);
+});
+
+log.info("Welcome to MonitrJS");
+log.info(config.ftp.host);
 
 var directoryToWatch = config.directories.watchRoot;
 
@@ -25,8 +31,6 @@ function fileSent(file, remoteFile){
 
 
 watcher.watchDirectory(directoryToWatch, function(createdFile){
-    //log.info("New file detected: "+createdFile);
-
     queue.push("Sending "+createdFile, config.ftp.sendDelay, function(done){
         sender.send(createdFile, config, fileSent, done);
     });
