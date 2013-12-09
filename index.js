@@ -1,12 +1,14 @@
 var watcher = require('./watcher');
 var sender = require("./sender");
-var config = require("./config");
+var config = require("./config").config;
 var queue = require("./queue");
 var log = require("./log");
 var growlr = require("./growlr");
 var subtitler = require("./subtitler");
 var path = require("path");
 var tweet = require("./tweet");
+
+console.log(config.ftp.host);
 
 var directoryToWatch = config.directories.watchRoot;
 
@@ -17,7 +19,6 @@ function fileSent(file, remoteFile){
     var extension = path.extname(file);
     var movieExtensions = config.subtitles.movieExtensions;
     if (movieExtensions.indexOf(extension) > -1) {
-        var fileName = path.basename(remoteFile, extension);
         growlr('File transferred', remoteFile);
     }
 }
