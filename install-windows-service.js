@@ -10,7 +10,7 @@ var Service = require('node-windows').Service;
 var svc = new Service({
     name:'Monitrjsd',
     description: 'Monitr JS',
-    script: 'C:\\monitrjs\\index.js'
+    script: 'C:\\bin\\monitrjs\\index.js'
 });
 
 // Listen for the "install" event, which indicates the
