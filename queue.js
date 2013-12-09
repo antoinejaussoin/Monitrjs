@@ -8,6 +8,9 @@ var QUEUE_DELAY = 1000;
 var status = {
     isStarted: false
 };
+var config = require("./config").config;
+var maxConcurrent = config.queue.maxConcurrent;
+var currentlyRunning = 0;
 
 function start(){
 
@@ -19,7 +22,7 @@ function start(){
         if (!status.isStarted)
             return;
 
-        if (queue.length > 0){
+        if (queue.length > 0 && currentlyRunning < maxConcurrent){
             var job = queue[0];
             queue.splice(0, 1);
 
@@ -28,7 +31,12 @@ function start(){
             }
             else {
                 log.info("Running a job "+job.name);
-                job.run();
+                currentlyRunning += 1;
+                log.info(currentlyRunning+" jobs are running concurrently");
+                job.run(function(){
+                    currentlyRunning -= 1;
+                    log.info("Job terminated, "+currentlyRunning+" jobs are running concurrently");
+                });
             }
         }
         setTimeout(loop, QUEUE_DELAY);

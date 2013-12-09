@@ -27,8 +27,8 @@ function fileSent(file, remoteFile){
 watcher.watchDirectory(directoryToWatch, function(createdFile){
     //log.info("New file detected: "+createdFile);
 
-    queue.push("Sending "+createdFile, config.ftp.sendDelay, function(){
-        sender.send(createdFile, config, fileSent);
+    queue.push("Sending "+createdFile, config.ftp.sendDelay, function(done){
+        sender.send(createdFile, config, fileSent, done);
     });
 
     var fileExtension = path.extname(createdFile);
@@ -37,9 +37,9 @@ watcher.watchDirectory(directoryToWatch, function(createdFile){
     if (movieExtensions.indexOf(fileExtension) > -1) {
         tweet.send("New movie! "+fileName);
 
-        queue.push("Finding subs for "+createdFile, config.subtitles.initialDelay, function(){
+        queue.push("Finding subs for "+createdFile, config.subtitles.initialDelay, function(done){
             config.subtitles.languages.forEach(function(language){
-                subtitler.download(createdFile, language);
+                subtitler.download(createdFile, language, done);
             });
         });
     }

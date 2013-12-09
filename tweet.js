@@ -4,7 +4,7 @@
 
 var util = require('util');
 var twitter = require('twitter');
-var config = require("./config");
+var config = require("./config").config;
 
 function send(message){
     var twit = new twitter(config.twitter);

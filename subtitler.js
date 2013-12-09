@@ -5,9 +5,9 @@ var opensubtitles = require("opensubtitles-client");
 var log = require("./log");
 var path = require("path");
 var queue = require("./queue");
-var config = require("./config");
+var config = require("./config").config;
 
-function download(file, language){
+function download(file, language, done){
     log.info("Downloading subtitles for "+file);
     log.info("sub client: "+opensubtitles);
 
@@ -19,10 +19,10 @@ function download(file, language){
 
     var finalSubFile = directory+path.sep+fileName+"."+language+extension;
 
-    downloadSubs(file, language, finalSubFile, 0);
+    downloadSubs(file, language, finalSubFile, 0, done);
 }
 
-function downloadSubs(movieFile, language, subFile, attempt) {
+function downloadSubs(movieFile, language, subFile, attempt, done) {
 
     if (attempt>10){
         log.error("Giving up on finding a sub for "+movieFile+" in "+language);
@@ -44,9 +44,10 @@ function downloadSubs(movieFile, language, subFile, attempt) {
                     if (results.length == 0){
                         log.info("Didn't find any subtitle for "+movieFile+", attempt "+attempt);
                         log.info("Requeuing for "+config.subtitles.retryDelay+" seconds");
-                        queue.push("Subtitle for "+movieFile+" in "+language, config.subtitles.retryDelay, function(){
-                           downloadSubs(movieFile, language, subFile, attempt+1);
+                        queue.push("Subtitle for "+movieFile+" in "+language, config.subtitles.retryDelay, function(done2){
+                           downloadSubs(movieFile, language, subFile, attempt+1, done2);
                         });
+                        done();
                         opensubtitles.api.logout(token);
                     }
                     else
@@ -54,6 +55,7 @@ function downloadSubs(movieFile, language, subFile, attempt) {
                         opensubtitles.downloader.download(results, 100, subFile, function(){
                             log.info("Download the fricking files");
                             opensubtitles.api.logout(token);
+                            done();
                         });
                     }
                 }

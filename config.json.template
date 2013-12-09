@@ -18,6 +18,9 @@
       3600
     ]
   },
+  "queue":{
+    "maxConcurrent": 10
+  },
   "directories": {
     "watchRoot": "c:\\watch",
     "remoteRoot": "/Public/"
