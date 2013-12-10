@@ -38,7 +38,10 @@ describe("Queue", function(){
         });
 
         it("It should execute the item when needed", function(done){
-            queue.push("Task 1", 100, done);
+            queue.push("Task 1", 100, function(queueDone){
+                done();
+                queueDone();
+            });
             queue.queue.length.should.equal(1);
             clock.tick(1000); // Forward 1 second: the task is still not ready to be executed
             queue.queue.length.should.equal(1);

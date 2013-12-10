@@ -1,6 +1,3 @@
-/**
- * Created by Antoine on 02/11/2013.
- */
 var opensubtitles = require("opensubtitles-client");
 var log = require("./log");
 var path = require("path");

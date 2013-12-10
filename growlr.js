@@ -1,6 +1,3 @@
-/**
- * Created by Antoine on 31/10/2013.
- */
 var growl = require("growl");
 
 var send = function(title, message){

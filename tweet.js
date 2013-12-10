@@ -1,8 +1,3 @@
-/**
- * Created by Antoine on 02/11/2013.
- */
-
-var util = require('util');
 var twitter = require('twitter');
 var config = require("./config").config;
 

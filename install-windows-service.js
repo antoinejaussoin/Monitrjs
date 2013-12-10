@@ -1,6 +1,3 @@
-/**
- * Created by Antoine on 02/11/2013.
- */
 // Before using (on Windows only), run
 // npm install node-windows -g
 

@@ -1,6 +1,3 @@
-/**
- * Created by Antoine on 31/10/2013.
- */
 var assert = require("assert");
 describe('Array', function(){
     describe('#indexOf()', function(){

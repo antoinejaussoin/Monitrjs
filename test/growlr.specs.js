@@ -1,10 +1,5 @@
-/**
- * Created by jaussan on 01/11/13.
- */
 var sinon = require("sinon");
 var rewire = require("rewire");
-
-
 
 describe("Growlr", function(){
     var mockGrowl;

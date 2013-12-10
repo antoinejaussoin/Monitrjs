@@ -41,7 +41,6 @@ function makeDirectory(directory, sftp, callback){
     });
 }
 
-
 function requeuing(file, config, tryCount, callback){
     if (config.ftp.timeouts.length > tryCount){
         var waitTime = config.ftp.timeouts[tryCount];
@@ -54,7 +53,6 @@ function requeuing(file, config, tryCount, callback){
     {
         log.error("The file "+file+" couldn't be sent. Aborting for good.");
     }
-
 }
 
 function doSend(file, config, tryCount, callback, done){
@@ -102,16 +100,14 @@ function doSend(file, config, tryCount, callback, done){
 
                 readStream.pipe(writeStream);
             });
-
-
         });
-
     });
 
     conn.on('error', function(err) {
         log.error("Connection error: %s", err);
         log.error("Re-queuing");
-        requeuing(file, rootPath, tryCount);
+        requeuing(file, config, tryCount, callback);
+        done();
     });
 
     conn.on('end', function() {

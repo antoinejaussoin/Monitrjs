@@ -1,14 +1,10 @@
-/**
- * Created by jaussan on 31/10/13.
- */
 var moment = require("moment");
 var log = require("./log");
+var config = require("./config").config;
+
 var queue = [];
 var QUEUE_DELAY = 1000;
-var status = {
-    isStarted: false
-};
-var config = require("./config").config;
+var status = { isStarted: false };
 var maxConcurrent = config.queue.maxConcurrent;
 var currentlyRunning = 0;
 
@@ -54,7 +50,6 @@ function push(name, delayInSeconds, taskCallback){
         run: taskCallback
     })
 }
-
 
 exports.start = start;
 exports.push = push;

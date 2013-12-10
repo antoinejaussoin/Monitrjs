@@ -1,6 +1,3 @@
-/**
- * Created by jaussan on 31/10/13.
- */
 var winston = require('winston');
 
 var logger = new (winston.Logger)({
